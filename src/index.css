@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* E-ink 최적화를 위해 모든 애니메이션과 트랜지션을 비활성화합니다. */
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+}
