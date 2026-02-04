@@ -3,7 +3,7 @@ import styles from './PostItem.module.css';
 import CommentSection from './CommentSection';
 
 function PostItem(props) {
-  const [showComments, setShowComments] = createSignal(false);
+  const [showComments, setShowComments] = createSignal(true);
 
   const toggleComments = () => {
     setShowComments(!showComments());
@@ -17,7 +17,7 @@ function PostItem(props) {
       </header>
       <p class={styles.content}>{props.post.content}</p>
       <footer class={styles.postFooter}>
-        <span onClick={toggleComments} style={{ cursor: 'pointer' }}>
+        <span onclick={toggleComments} style={{ cursor: 'pointer' }}>
           Comments ({props.post.comments.length}) {showComments() ? '[-]' : '[+]'}
         </span>
       </footer>

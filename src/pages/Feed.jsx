@@ -3,11 +3,13 @@ import { createSignal, onMount, For } from "solid-js";
 import { request } from "../utils/api";
 import PostForm from "../components/PostForm";
 import PostActions from "../components/PostActions";
+import CommentSection from "../components/CommentSection";
 
 function Feed() {
   const [posts, setPosts] = createSignal([]);
   const [loading, setLoading] = createSignal(true);
   const [expandedComments, setExpandedComments] = createSignal(new Set());
+  const [commentsData, setCommentsData] = createSignal({}); // postId를 키로 하는 댓글 데이터
 
   // 게시글 불러오기
   const fetchPosts = async () => {
@@ -55,13 +57,64 @@ function Feed() {
     }
   };
 
+  // 댓글 추가
+  const handleAddComment = async (postId, commentData) => {
+    const res = await request("/sns/addComment", {
+      method: "POST",
+      body: {
+        postId,
+        author: commentData.author,
+        content: commentData.content
+      }
+    });
+    
+    if (res.result === "success") {
+      // 댓글 목록 다시 불러오기
+      const commentsRes = await request("/sns/getComments", {
+        method: "POST",
+        body: { postId }
+      });
+      
+      if (commentsRes.result === "success") {
+        setCommentsData({
+          ...commentsData(),
+          [postId]: commentsRes.data || []
+        });
+      }
+      
+      // 게시글 목록도 새로고침 (commentCount 업데이트)
+      await fetchPosts();
+    } else {
+      throw new Error(res.message || '댓글 작성 실패');
+    }
+  };
+
   // 댓글 토글
-  const toggleComments = (postId) => {
+  const toggleComments = async (postId) => {
     const newExpanded = new Set(expandedComments());
     if (newExpanded.has(postId)) {
       newExpanded.delete(postId);
     } else {
       newExpanded.add(postId);
+      
+      // 댓글이 아직 로드되지 않았으면 가져오기
+      if (!commentsData()[postId]) {
+        try {
+          const res = await request("/sns/getComments", {
+            method: "POST",
+            body: { postId }
+          });
+          
+          if (res.result === "success") {
+            setCommentsData({
+              ...commentsData(),
+              [postId]: res.data || []
+            });
+          }
+        } catch (err) {
+          console.error("댓글 로드 실패:", err);
+        }
+      }
     }
     setExpandedComments(newExpanded);
   };
@@ -137,6 +190,16 @@ function Feed() {
                 onDelete={handleDeletePost}
                 onToggleComments={() => toggleComments(post.id)}
               />
+
+              {/* 댓글 섹션 */}
+              {expandedComments().has(post.id) && commentsData()[post.id] && (
+                <div style={{ "margin-top": "15px", "padding-top": "15px", "border-top": "1px dashed black" }}>
+                  <CommentSection 
+                    comments={commentsData()[post.id]} 
+                    onAddComment={(commentData) => handleAddComment(post.id, commentData)}
+                  />
+                </div>
+              )}
             </article>
           )}
         </For>

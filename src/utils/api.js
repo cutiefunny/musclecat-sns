@@ -1,9 +1,10 @@
 // src/utils/api.js
 
 // Vite 환경 변수를 사용하여 베이스 URL 결정
-const BASE_URL = import.meta.env.DEV 
-  ? "http://localhost:8000"       // 로컬 개발 환경
-  : "https://musclecat.co.kr";    // 배포 환경
+const BASE_URL = "https://musclecat.co.kr";    // 임시로 배포 서버 사용
+// const BASE_URL = import.meta.env.DEV 
+//   ? "http://localhost:8000"       // 로컬 개발 환경
+//   : "https://musclecat.co.kr";    // 배포 환경
 
 console.log(`[System] Current API Base: ${BASE_URL}`);
 
