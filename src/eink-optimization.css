@@ -1,0 +1,74 @@
+/* E-ink Display Optimization */
+:root {
+  /* E-ink friendly color palette */
+  --eink-black: #000000;
+  --eink-dark-gray: #333333;
+  --eink-gray: #666666;
+  --eink-light-gray: #cccccc;
+  --eink-white: #ffffff;
+  
+  /* Disable animations for better e-ink performance */
+  --transition-duration: 0s;
+}
+
+/* Disable all animations and transitions */
+*, *::before, *::after {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* High contrast for better readability on e-ink */
+body {
+  background-color: var(--eink-white);
+  color: var(--eink-black);
+  font-weight: 500;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Increase border thickness for better visibility */
+.post-item,
+.comment-item,
+button,
+input,
+textarea {
+  border-width: 2px;
+  border-color: var(--eink-black);
+}
+
+/* Optimize images for e-ink display */
+img {
+  filter: grayscale(100%) contrast(1.2);
+  image-rendering: crisp-edges;
+}
+
+/* Remove shadows as they don't render well on e-ink */
+* {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Optimize buttons for e-ink */
+button {
+  background-color: var(--eink-white);
+  color: var(--eink-black);
+  border: 2px solid var(--eink-black);
+  font-weight: 600;
+}
+
+button:active {
+  background-color: var(--eink-black);
+  color: var(--eink-white);
+}
+
+/* Reduce refresh rate issues with position fixed elements */
+.header,
+header {
+  position: relative;
+}
+
+/* Improve text rendering */
+p, span, div, a, button, input, textarea {
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+}
