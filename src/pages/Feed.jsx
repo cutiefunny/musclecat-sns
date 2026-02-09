@@ -97,7 +97,6 @@ function Feed() {
     } else {
       newExpanded.add(postId);
       
-      // 댓글이 아직 로드되지 않았으면 가져오기
       if (!commentsData()[postId]) {
         try {
           const res = await request("/sns/getComments", {
@@ -119,13 +118,47 @@ function Feed() {
     setExpandedComments(newExpanded);
   };
 
+  // 링크 파싱 함수 추가
+  const renderContentWithLinks = (content) => {
+    if (!content) return "";
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = content.split(urlRegex);
+
+    return (
+      <For each={parts}>
+        {(part) => {
+          if (part.match(urlRegex)) {
+            return (
+              <a 
+                href={part} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  "color": "black",
+                  "text-decoration": "none", 
+                  "word-break": "break-all" 
+                }}
+                onclick={(e) => {
+                  // 필요 시 팝업 관련 추가 로그
+                  console.log("링크 클릭: ", part);
+                }}
+              >
+                {part}
+              </a>
+            );
+          }
+          return part;
+        }}
+      </For>
+    );
+  };
+
   onMount(() => {
     fetchPosts();
   });
 
   return (
     <div style={{ "max-width": "600px", margin: "0 auto", padding: "10px" }}>
-      {/* 헤더 */}
       <header style={{ 
         "border-bottom": "3px solid black", 
         "padding-bottom": "10px",
@@ -149,17 +182,14 @@ function Feed() {
         </button>
       </header>
 
-      {/* 게시글 작성 폼 */}
       <PostForm onSubmit={handleCreatePost} />
 
-      {/* 로딩 상태 */}
       {loading() && (
         <div style={{ "text-align": "center", padding: "20px", border: "1px dashed black" }}>
           Loading...
         </div>
       )}
 
-      {/* 게시글 리스트 */}
       <div style={{ display: "flex", "flex-direction": "column", gap: "15px" }}>
         <For each={posts()}>
           {(post) => (
@@ -181,7 +211,8 @@ function Feed() {
               </div>
               
               <div style={{ "line-height": "1.5", "font-size": "16px", "margin-bottom": "15px" }}>
-                {post.content}
+                {/* 기존 {post.content} 대신 파싱 함수 호출 */}
+                {renderContentWithLinks(post.content)}
               </div>
 
               <PostActions 
@@ -191,7 +222,6 @@ function Feed() {
                 onToggleComments={() => toggleComments(post.id)}
               />
 
-              {/* 댓글 섹션 */}
               {expandedComments().has(post.id) && commentsData()[post.id] && (
                 <div style={{ "margin-top": "15px", "padding-top": "15px", "border-top": "1px dashed black" }}>
                   <CommentSection 
@@ -205,7 +235,6 @@ function Feed() {
         </For>
       </div>
       
-      {/* 데이터가 없을 때 안내 */}
       {!loading() && posts().length === 0 && (
         <div style={{ "text-align": "center", "margin-top": "30px" }}>
           <p>게시글이 없습니다. 위에서 게시글을 작성해보세요!</p>
